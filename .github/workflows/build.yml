@@ -19,6 +19,11 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Instalar Gradle 8.4
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.4'
+
       - name: Preparar wallpaper Snoopy
         run: |
           mkdir -p app/src/main/assets/wallpapers
@@ -26,15 +31,8 @@ jobs:
             curl -L "https://picsum.photos/1920/1080" -o app/src/main/assets/wallpapers/snoopy.jpg || true
           fi
 
-      - name: Reparar gradle wrapper
-        run: |
-          curl -L "https://github.com/gradle/gradle/raw/refs/tags/v8.4.0/gradle/wrapper/gradle-wrapper.jar" \
-            -o gradle/wrapper/gradle-wrapper.jar
-          chmod +x gradlew
-          java -jar gradle/wrapper/gradle-wrapper.jar --version || true
-
       - name: Compilar APK
-        run: ./gradlew assembleRelease --stacktrace
+        run: gradle assembleRelease --stacktrace
 
       - name: Firmar APK
         run: |
