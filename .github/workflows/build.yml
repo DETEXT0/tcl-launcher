@@ -39,6 +39,10 @@ jobs:
           BUILD_TOOLS=$(ls $ANDROID_SDK_ROOT/build-tools | sort -V | tail -1)
           echo "Build tools: $BUILD_TOOLS"
 
+          # Buscar el APK generado
+          APK_PATH=$(find app/build/outputs/apk/release -name "*.apk" | head -1)
+          echo "APK encontrado: $APK_PATH"
+
           keytool -genkey -v \
             -keystore keystore.jks \
             -alias launcher \
@@ -54,7 +58,7 @@ jobs:
             --ks-pass pass:android \
             --key-pass pass:android \
             --out app/build/outputs/apk/release/TCLLauncher.apk \
-            app/build/outputs/apk/release/app-release-unsigned.apk
+            "$APK_PATH"
 
       - name: Subir APK
         uses: actions/upload-artifact@v4
