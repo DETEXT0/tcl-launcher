@@ -19,29 +19,29 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Descargar imagen de Snoopy y copiarla como wallpaper por defecto
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Preparar wallpaper Snoopy
         run: |
           mkdir -p app/src/main/assets/wallpapers
-          # Descargamos la imagen Snoopy que el usuario proporcionó
-          # Como placeholder usamos una imagen de dominio público similar
-          # El usuario debe reemplazar este archivo con su imagen Snoopy
-          curl -L "https://picsum.photos/1920/1080" -o app/src/main/assets/wallpapers/snoopy.jpg || true
+          if [ -f "app/src/main/assets/wallpapers/snoopy.jpg" ]; then
+            echo "Wallpaper Snoopy ya existe"
+          else
+            echo "Descargando wallpaper placeholder..."
+            curl -L "https://picsum.photos/1920/1080" -o app/src/main/assets/wallpapers/snoopy.jpg || true
+          fi
 
       - name: Dar permisos a Gradle
         run: chmod +x gradlew
 
-      - name: Configurar Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Compilar APK Release
+      - name: Compilar APK
         run: ./gradlew assembleRelease --stacktrace
 
-      - name: Firmar APK con debug keystore (para sideload por ADB)
+      - name: Firmar APK
         run: |
-          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | tail -1)/zipalign \
-            -v 4 \
-            app/build/outputs/apk/release/app-release-unsigned.apk \
-            app/build/outputs/apk/release/app-release-aligned.apk || true
+          BUILD_TOOLS=$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)
+          echo "Usando build-tools: $BUILD_TOOLS"
 
           keytool -genkey -v \
             -keystore keystore.jks \
@@ -53,14 +53,14 @@ jobs:
             -keypass android \
             -dname "CN=TCLLauncher, OU=Dev, O=DETEXT0, L=Bogota, S=Cundinamarca, C=CO"
 
-          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | tail -1)/apksigner sign \
+          $ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner sign \
             --ks keystore.jks \
             --ks-pass pass:android \
             --key-pass pass:android \
             --out app/build/outputs/apk/release/TCLLauncher.apk \
             app/build/outputs/apk/release/app-release-unsigned.apk
 
-      - name: Subir APK como artefacto
+      - name: Subir APK
         uses: actions/upload-artifact@v4
         with:
           name: TCLLauncher-APK
