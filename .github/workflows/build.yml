@@ -19,29 +19,25 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Configurar Android SDK
-        uses: android-actions/setup-android@v3
-
       - name: Preparar wallpaper Snoopy
         run: |
           mkdir -p app/src/main/assets/wallpapers
-          if [ -f "app/src/main/assets/wallpapers/snoopy.jpg" ]; then
-            echo "Wallpaper Snoopy ya existe"
-          else
-            echo "Descargando wallpaper placeholder..."
+          if [ ! -f "app/src/main/assets/wallpapers/snoopy.jpg" ]; then
             curl -L "https://picsum.photos/1920/1080" -o app/src/main/assets/wallpapers/snoopy.jpg || true
           fi
 
       - name: Dar permisos a Gradle
         run: chmod +x gradlew
 
-      - name: Compilar APK
+      - name: Compilar APK con Gradle (descarga SDK automáticamente)
         run: ./gradlew assembleRelease --stacktrace
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
 
       - name: Firmar APK
         run: |
-          BUILD_TOOLS=$(ls $ANDROID_HOME/build-tools | sort -V | tail -1)
-          echo "Usando build-tools: $BUILD_TOOLS"
+          BUILD_TOOLS=$(ls $ANDROID_SDK_ROOT/build-tools | sort -V | tail -1)
+          echo "Build tools: $BUILD_TOOLS"
 
           keytool -genkey -v \
             -keystore keystore.jks \
@@ -53,7 +49,7 @@ jobs:
             -keypass android \
             -dname "CN=TCLLauncher, OU=Dev, O=DETEXT0, L=Bogota, S=Cundinamarca, C=CO"
 
-          $ANDROID_HOME/build-tools/$BUILD_TOOLS/apksigner sign \
+          $ANDROID_SDK_ROOT/build-tools/$BUILD_TOOLS/apksigner sign \
             --ks keystore.jks \
             --ks-pass pass:android \
             --key-pass pass:android \
