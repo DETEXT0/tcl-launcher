@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="80dp"
+    android:layout_margin="4dp"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <ImageView
+        android:id="@+id/wallpaperThumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:contentDescription="Vista previa fondo" />
+
+    <!-- Overlay con nombre -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_gravity="bottom"
+        android:background="#88000000" />
+
+    <TextView
+        android:id="@+id/wallpaperName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:padding="4dp"
+        android:textColor="#FFFFFF"
+        android:textSize="10sp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:gravity="center" />
+
+    <!-- Borde de selección -->
+    <View
+        android:id="@+id/selectedBorder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/selected_border"
+        android:visibility="gone" />
+
+</FrameLayout>

@@ -1,0 +1,68 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Descargar imagen de Snoopy y copiarla como wallpaper por defecto
+        run: |
+          mkdir -p app/src/main/assets/wallpapers
+          # Descargamos la imagen Snoopy que el usuario proporcionó
+          # Como placeholder usamos una imagen de dominio público similar
+          # El usuario debe reemplazar este archivo con su imagen Snoopy
+          curl -L "https://picsum.photos/1920/1080" -o app/src/main/assets/wallpapers/snoopy.jpg || true
+
+      - name: Dar permisos a Gradle
+        run: chmod +x gradlew
+
+      - name: Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Compilar APK Release
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Firmar APK con debug keystore (para sideload por ADB)
+        run: |
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | tail -1)/zipalign \
+            -v 4 \
+            app/build/outputs/apk/release/app-release-unsigned.apk \
+            app/build/outputs/apk/release/app-release-aligned.apk || true
+
+          keytool -genkey -v \
+            -keystore keystore.jks \
+            -alias launcher \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass android \
+            -keypass android \
+            -dname "CN=TCLLauncher, OU=Dev, O=DETEXT0, L=Bogota, S=Cundinamarca, C=CO"
+
+          $ANDROID_HOME/build-tools/$(ls $ANDROID_HOME/build-tools | tail -1)/apksigner sign \
+            --ks keystore.jks \
+            --ks-pass pass:android \
+            --key-pass pass:android \
+            --out app/build/outputs/apk/release/TCLLauncher.apk \
+            app/build/outputs/apk/release/app-release-unsigned.apk
+
+      - name: Subir APK como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: TCLLauncher-APK
+          path: app/build/outputs/apk/release/TCLLauncher.apk
+          retention-days: 30
