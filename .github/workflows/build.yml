@@ -26,13 +26,15 @@ jobs:
             curl -L "https://picsum.photos/1920/1080" -o app/src/main/assets/wallpapers/snoopy.jpg || true
           fi
 
-      - name: Dar permisos a Gradle
-        run: chmod +x gradlew
+      - name: Reparar gradle wrapper
+        run: |
+          curl -L "https://github.com/gradle/gradle/raw/refs/tags/v8.4.0/gradle/wrapper/gradle-wrapper.jar" \
+            -o gradle/wrapper/gradle-wrapper.jar
+          chmod +x gradlew
+          java -jar gradle/wrapper/gradle-wrapper.jar --version || true
 
-      - name: Compilar APK con Gradle (descarga SDK automáticamente)
+      - name: Compilar APK
         run: ./gradlew assembleRelease --stacktrace
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
 
       - name: Firmar APK
         run: |
