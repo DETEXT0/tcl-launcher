@@ -8,13 +8,19 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
 class AppAdapter(
-    private val apps: List<AppInfo>,
-    private val onAppClick: (AppInfo) -> Unit
+    private var apps: List<AppInfo>,
+    private val onAppClick: (AppInfo) -> Unit,
+    private val onAppLongClick: ((AppInfo) -> Boolean)? = null
 ) : RecyclerView.Adapter<AppAdapter.AppViewHolder>() {
 
     inner class AppViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val icon: ImageView = view.findViewById(R.id.appIcon)
         val name: TextView = view.findViewById(R.id.appName)
+    }
+
+    fun updateApps(newApps: List<AppInfo>) {
+        this.apps = newApps
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AppViewHolder {
@@ -29,8 +35,11 @@ class AppAdapter(
         holder.name.text = app.name
 
         holder.itemView.setOnClickListener { onAppClick(app) }
+        holder.itemView.setOnLongClickListener {
+            onAppLongClick?.invoke(app) ?: false
+        }
 
-        // Efecto de foco para navegación con control remoto
+        // Efecto de foco para navegación con control remoto D-pad
         holder.itemView.setOnFocusChangeListener { v, hasFocus ->
             v.animate()
                 .scaleX(if (hasFocus) 1.15f else 1.0f)

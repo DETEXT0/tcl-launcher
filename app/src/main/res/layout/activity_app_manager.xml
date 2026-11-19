@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#1E1E2E"
+    android:padding="28dp">
+
+    <!-- Encabezado con título e instrucciones -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="16dp">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Gestión de Aplicaciones"
+                android:textColor="#FFFFFF"
+                android:textSize="22sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/managerSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Presiona OK en el control remoto para mostrar u ocultar una app"
+                android:textColor="#AAFFFFFF"
+                android:textSize="13sp"
+                android:layout_marginTop="2dp" />
+        </LinearLayout>
+
+        <!-- Botones de acción rápida -->
+        <Button
+            android:id="@+id/btnShowAll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mostrar todas"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#2D3250"
+            android:textSize="12sp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:layout_marginEnd="10dp" />
+
+        <Button
+            android:id="@+id/btnCloseManager"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="✓ Listo"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#424769"
+            android:textSize="12sp"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
+
+    </LinearLayout>
+
+    <!-- Lista / Grid de aplicaciones -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/managerRecycler"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:focusable="true"
+        android:focusableInTouchMode="true" />
+
+</LinearLayout>

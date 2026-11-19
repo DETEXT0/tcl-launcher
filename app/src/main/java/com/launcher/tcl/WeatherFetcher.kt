@@ -14,7 +14,7 @@ object WeatherFetcher {
 
     private val client = OkHttpClient()
 
-    fun fetch(city: String, callback: (temp: String, condition: String, icon: String) -> Unit) {
+    fun fetch(city: String, callback: (temp: String, condition: String, icon: String, maxT: String, minT: String) -> Unit) {
         // Usamos Open-Meteo con geocoding para obtener coordenadas
         Thread {
             try {
@@ -37,7 +37,7 @@ object WeatherFetcher {
                     }
                 }
 
-                // Paso 2: clima actual
+                // Paso 2: clima actual y pronóstico diario
                 val weatherUrl = "https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current_weather=true&hourly=relativehumidity_2m&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1"
                 val weatherRequest = Request.Builder().url(weatherUrl).build()
                 val weatherResponse = client.newCall(weatherRequest).execute()
@@ -50,12 +50,27 @@ object WeatherFetcher {
                     val code = current.getInt("weathercode")
                     val condition = getCondition(code)
                     val icon = getIcon(code)
-                    callback(temp, condition, icon)
+
+                    var maxT = "--"
+                    var minT = "--"
+                    val daily = weatherJson.optJSONObject("daily")
+                    if (daily != null) {
+                        val maxArray = daily.optJSONArray("temperature_2m_max")
+                        val minArray = daily.optJSONArray("temperature_2m_min")
+                        if (maxArray != null && maxArray.length() > 0) {
+                            maxT = maxArray.getDouble(0).toInt().toString()
+                        }
+                        if (minArray != null && minArray.length() > 0) {
+                            minT = minArray.getDouble(0).toInt().toString()
+                        }
+                    }
+
+                    callback(temp, condition, icon, maxT, minT)
                 }
             } catch (e: IOException) {
-                callback("--", "Sin conexión", "🌡️")
+                callback("--", "Sin conexión", "🌡️", "--", "--")
             } catch (e: Exception) {
-                callback("--", "Error", "🌡️")
+                callback("--", "Error", "🌡️", "--", "--")
             }
         }.start()
     }

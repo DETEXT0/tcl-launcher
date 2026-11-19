@@ -33,6 +33,12 @@
             android:exported="false"
             android:theme="@style/Theme.Launcher.Dialog" />
 
+        <!-- Actividad para gestionar aplicaciones -->
+        <activity
+            android:name=".AppManagerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Launcher.Dialog" />
+
         <!-- Receptor de arranque -->
         <receiver
             android:name=".BootReceiver"
